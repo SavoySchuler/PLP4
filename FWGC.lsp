@@ -4,29 +4,44 @@
         ( 
             ( start '(l l l l) ) 
             ( goal  '(r r r r) ) 
+            ( last-taken  'f )
+            ( path  nil )
         )   
 	
-        (if (dfs start goal 'f)			
-            (format t "~%~%Returned to main: solution found.~%~%")
-            (format t "~%~%Returned to main: no solution found.~%~%")	
+        (setf path (dfs start goal last-taken path))
+
+        (cond
+            (path (output path) )
+            (t (format t "~%~%Returned to main: no solution found.~%~%"))	
         )	
+
+   ;     (output (dfs start goal 'f nil))
+
+
     )
+)
+
+
+(defun output (path)
+    (format t "~%~%Left Bank    Right Bank    Action~%")
+    (format t "---------    ----------    ------~%")
+
 )
 
 
 
 
-(defun dfs (state goal last-taken)
+(defun dfs (state goal last-taken path)
 	
 
     (format t "~%~%Inside DFS. State:")
     (print state)
 
     (cond 
-        ((equal state goal) t)
+        ((equal state goal) (cons state path) t)
         ((and (not (member nil state)) (member 'l state))  
             
-            (apply-rules state goal last-taken)
+            (apply-rules state goal last-taken path)
         
         )
 
@@ -36,7 +51,7 @@
 
 
 
-(defun apply-rules (state goal last-taken)
+(defun apply-rules (state goal last-taken path)
 
         (format t "~%~%In applying rules.")
 
@@ -49,7 +64,7 @@
 
         ((and 
             (not (equalp last-taken 'f))
-            (consequences (rule-farmer-takes-self state-copy1) goal 'f)
+            (consequences (rule-farmer-takes-self state-copy1) goal 'f path)
               
          )
             t
@@ -58,8 +73,8 @@
         ((and (and 
         
             (equalp (nth 0 state) (nth 1 state)) 
-            (not (equalp last-taken 'p))
-            (consequences (rule-farmer-takes-wolf state-copy1) goal 'w)
+            (not (equalp last-taken 'w))
+            (consequences (rule-farmer-takes-wolf state-copy2) goal 'w path)
               )
          )
             t
@@ -70,7 +85,7 @@
         
             (equalp (nth 0 state) (nth 2 state)) 
             (not (equalp last-taken 'g))
-            (consequences (rule-farmer-takes-goat state-copy2) goal 'g)
+            (consequences (rule-farmer-takes-goat state-copy3) goal 'g path)
               )
          )
             t
@@ -81,7 +96,7 @@
         
             (equalp (nth 0 state) (nth 3 state)) 
             (not (equalp last-taken 'c))
-            (consequences (rule-farmer-takes-cabbage state-copy3) goal 'c)
+            (consequences (rule-farmer-takes-cabbage state-copy4) goal 'c path)
               )
          )
             t
@@ -94,14 +109,21 @@
     
 )
 
+(defun rule-farmer-takes-self (state)
+    (setf (nth 0 state) (boat-ride (nth 0 state) ) )     
+    
+    (format t "~%~%Rule 1")
 
+
+    (if t state nil) 
+)
 
 
 (defun rule-farmer-takes-wolf (state)
     (setf (nth 0 state) (boat-ride (nth 0 state) ) )    
     (setf (nth 1 state) (boat-ride (nth 1 state) ) )
     
-    (format t "~%~%Rule 1")
+    (format t "~%~%Rule 2")
  
 
     (if t state nil)  
@@ -112,7 +134,7 @@
     (setf (nth 0 state) (boat-ride (nth 0 state) ) )    
     (setf (nth 2 state) (boat-ride (nth 2 state) ) ) 
     
-    (format t "~%~%Rule 2")
+    (format t "~%~%Rule 3")
 
 
     (if t state nil) 
@@ -122,16 +144,6 @@
 (defun rule-farmer-takes-cabbage (state)
     (setf (nth 0 state) (boat-ride (nth 0 state) ) )    
     (setf (nth 3 state) (boat-ride (nth 3 state) ) ) 
-    
-    (format t "~%~%Rule 3")
-
-
-    (if t state nil) 
-)
-
-
-(defun rule-farmer-takes-self (state)
-    (setf (nth 0 state) (boat-ride (nth 0 state) ) )     
     
     (format t "~%~%Rule 4")
 
@@ -148,7 +160,7 @@
 )
 
 
-(defun consequences (state goal last-taken)
+(defun consequences (state goal last-taken path)
     
     (format t "~%~%Before Consequence:")
     (print state)    
@@ -196,7 +208,7 @@
     (format t "~%~%Applied Consequence:")
     (print state)
 
-    (dfs state goal last-taken)
+    (dfs state goal last-taken path)
 )
 
 
