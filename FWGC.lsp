@@ -4,7 +4,7 @@
             ( start '(l l l l) ) 
             ( last-taken  'f )
             ( path  nil )
-            (action "*start state*")
+            ( action "*start state*" )
         )   
 
         (cond
@@ -67,44 +67,20 @@
     (setf path (cons (nconc state (list action)) path))
 
     (cond 
-
-        ((and 
-            (not (equalp last-taken 'f))
-            (consequences (make-move state-copy1 '0 nil) 'f path "farmer returns alone")
-              
-         )
+        
+        ((valid-move state-copy1 '0 '0 'f last-taken path "farmer returns alone")
             t
         )
 
-        ((and (and 
-        
-            (equalp (nth 0 state) (nth 1 state)) 
-            (not (equalp last-taken 'w))
-            (consequences (make-move state-copy2 '0 '1) 'w path "farmer takes wolf across" )
-              )
-         )
-            t
-        )
-        
-
-        ((and (and 
-        
-            (equalp (nth 0 state) (nth 2 state)) 
-            (not (equalp last-taken 'g))
-            (consequences (make-move state-copy3 '0 '2) 'g path "farmer takes goat across")
-              )
-         )
+        ((valid-move state-copy2 '0 '1 'w last-taken path "farmer takes wolf across")
             t
         )
 
+        ((valid-move state-copy3 '0 '2 'g last-taken path "farmer takes goat across")
+            t
+        )
 
-        ((and (and 
-        
-            (equalp (nth 0 state) (nth 3 state)) 
-            (not (equalp last-taken 'c))
-            (consequences (make-move state-copy1 '0 '3) 'c path "farmer takes cabbage across")
-              )
-         )
+        ((valid-move state-copy4 '0 '3 'c last-taken path "farmer takes cabbage across")
             t
         )
     )
@@ -112,9 +88,25 @@
 )
 
 
+(defun valid-move (state farmer object object-name last-taken path action)
+    (cond 
+        ((and 
+            (and         
+            (equalp (nth farmer state) (nth object state)) 
+            (not (equalp last-taken object-name))
+        )
+            (consequences (make-move state farmer object) object-name path action )
+      )
+                t
+     )
+    )
+)
+
+
+
 (defun make-move (state farmer object)
     (setf (nth farmer state) (cond ((equalp (nth farmer state) 'l) 'r) (t 'l) ))  
-    (cond ((not (null object)) (setf (nth object state) (cond ((equalp (nth object state) 'l) 'r) (t 'l) ))))  
+    (cond ((not (equalp farmer object)) (setf (nth object state) (cond ((equalp (nth object state) 'l) 'r) (t 'l) ))))  
     (if t state nil)  
 )
 
