@@ -70,7 +70,7 @@
 
         ((and 
             (not (equalp last-taken 'f))
-            (consequences (rule-farmer-takes-self state-copy1) 'f path "farmer takes self")
+            (consequences (rule-farmer-takes-self state-copy1) 'f path "farmer returns alone")
               
          )
             t
@@ -80,7 +80,7 @@
         
             (equalp (nth 0 state) (nth 1 state)) 
             (not (equalp last-taken 'w))
-            (consequences (rule-farmer-takes-wolf state-copy2) 'w path "farmer takes wolf" )
+            (consequences (rule-farmer-takes-wolf state-copy2) 'w path "farmer takes wolf across" )
               )
          )
             t
@@ -91,7 +91,7 @@
         
             (equalp (nth 0 state) (nth 2 state)) 
             (not (equalp last-taken 'g))
-            (consequences (rule-farmer-takes-goat state-copy3) 'g path "farmer takes goat")
+            (consequences (rule-farmer-takes-goat state-copy3) 'g path "farmer takes goat across")
               )
          )
             t
@@ -102,7 +102,7 @@
         
             (equalp (nth 0 state) (nth 3 state)) 
             (not (equalp last-taken 'c))
-            (consequences (rule-farmer-takes-cabbage state-copy4) 'c path "farmer takes cabbage")
+            (consequences (rule-farmer-takes-cabbage state-copy4) 'c path "farmer takes cabbage across")
               )
          )
             t
