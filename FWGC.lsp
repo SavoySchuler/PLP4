@@ -70,7 +70,7 @@
 
         ((and 
             (not (equalp last-taken 'f))
-            (consequences (rule-farmer-takes-self state-copy1) 'f path "farmer returns alone")
+            (consequences (make-move state-copy1 '0 nil) 'f path "farmer returns alone")
               
          )
             t
@@ -80,7 +80,7 @@
         
             (equalp (nth 0 state) (nth 1 state)) 
             (not (equalp last-taken 'w))
-            (consequences (rule-farmer-takes-wolf state-copy2) 'w path "farmer takes wolf across" )
+            (consequences (make-move state-copy2 '0 '1) 'w path "farmer takes wolf across" )
               )
          )
             t
@@ -91,7 +91,7 @@
         
             (equalp (nth 0 state) (nth 2 state)) 
             (not (equalp last-taken 'g))
-            (consequences (rule-farmer-takes-goat state-copy3) 'g path "farmer takes goat across")
+            (consequences (make-move state-copy3 '0 '2) 'g path "farmer takes goat across")
               )
          )
             t
@@ -102,7 +102,7 @@
         
             (equalp (nth 0 state) (nth 3 state)) 
             (not (equalp last-taken 'c))
-            (consequences (rule-farmer-takes-cabbage state-copy4) 'c path "farmer takes cabbage across")
+            (consequences (make-move state-copy1 '0 '3) 'c path "farmer takes cabbage across")
               )
          )
             t
@@ -112,38 +112,10 @@
 )
 
 
-(defun rule-farmer-takes-self (state)
-    (setf (nth 0 state) (boat-ride (nth 0 state) ) )     
-    (if t state nil) 
-)
-
-
-(defun rule-farmer-takes-wolf (state)
-    (setf (nth 0 state) (boat-ride (nth 0 state) ) )    
-    (setf (nth 1 state) (boat-ride (nth 1 state) ) )
+(defun make-move (state farmer object)
+    (setf (nth farmer state) (cond ((equalp (nth farmer state) 'l) 'r) (t 'l) ))  
+    (cond ((not (null object)) (setf (nth object state) (cond ((equalp (nth object state) 'l) 'r) (t 'l) ))))  
     (if t state nil)  
-)
-
-
-(defun rule-farmer-takes-goat (state)
-    (setf (nth 0 state) (boat-ride (nth 0 state) ) )    
-    (setf (nth 2 state) (boat-ride (nth 2 state) ) ) 
-    (if t state nil) 
-)
-
-
-(defun rule-farmer-takes-cabbage (state)
-    (setf (nth 0 state) (boat-ride (nth 0 state) ) )    
-    (setf (nth 3 state) (boat-ride (nth 3 state) ) ) 
-    (if t state nil) 
-)
-        
-
-(defun boat-ride (coming-from)
-    (cond 
-        ((equalp coming-from 'l) 'r)
-        (t 'l)
-    )
 )
 
 
