@@ -4,10 +4,11 @@
             ( start '(l l l l) ) 
             ( last-taken  'f )
             ( path  nil )
+            (action "*start state*")
         )   
 
         (cond
-            ((dfs start last-taken path) t)
+            ((dfs start last-taken path action) t)
             (t (format t "~%~%Returned to main: no solution found.~%~%") nil)	
         )	
     )
@@ -15,8 +16,8 @@
 
 
 (defun output (path)
-    (format t "~%Left Bank       Right Bank    Action~%")
-    (format t "---------       ----------    ------")
+    (format t "~%Left Bank       Right Bank      Action~%")
+    (format t "---------       ----------      ------")
     (loop for state in path do 
         (let( 
             (left nil)
@@ -38,24 +39,24 @@
             ((equalp (nth 3 state) 'l) (setf left (cons 'c left)))
             ((equalp (nth 3 state) 'r) (setf right (cons 'c right)))
         ) 
-            (format t "~%~9a~c~9a~c" (if (null left) "..." (reverse left)) #\Tab (if (null right) "..." (reverse right)) #\Tab)
+            (format t "~%~9a~c~9a~c~a" (if (null left) "-" (reverse left)) #\Tab (if (null right) "-" (reverse right)) #\Tab (nth 4 state))
         )
     ) 
-    (format t "~%~%") 
+    (format t "~%~c~c~c~c*** problem solved! ***~%~%" #\Tab #\Tab #\Tab #\Tab) 
     t    
 )
 
 
-(defun dfs (state last-taken path)
+(defun dfs (state last-taken path action)
     (cond 
-        ((equal state '(r r r r)) (setf path(cons state path)) (output (reverse path)))
-        ((not (member nil state)) (apply-rules state last-taken path) )
+        ((equal state '(r r r r)) (setf path (cons (nconc state (list action)) path)) (output (reverse path)))
+        ((not (member nil state)) (apply-rules state last-taken path action) )
         (t nil)
     )        
 )
 
 
-(defun apply-rules (state last-taken path)
+(defun apply-rules (state last-taken path action)
     (let (
         ( state-copy1 (copy-list state))          
         ( state-copy2 (copy-list state))
@@ -63,13 +64,13 @@
         ( state-copy4 (copy-list state))
         )
 
-    (setf path (cons state path))
+    (setf path (cons (nconc state (list action)) path))
 
     (cond 
 
         ((and 
             (not (equalp last-taken 'f))
-            (consequences (rule-farmer-takes-self state-copy1) 'f path)
+            (consequences (rule-farmer-takes-self state-copy1) 'f path "farmer takes self")
               
          )
             t
@@ -79,7 +80,7 @@
         
             (equalp (nth 0 state) (nth 1 state)) 
             (not (equalp last-taken 'w))
-            (consequences (rule-farmer-takes-wolf state-copy2) 'w path)
+            (consequences (rule-farmer-takes-wolf state-copy2) 'w path "farmer takes wolf" )
               )
          )
             t
@@ -90,7 +91,7 @@
         
             (equalp (nth 0 state) (nth 2 state)) 
             (not (equalp last-taken 'g))
-            (consequences (rule-farmer-takes-goat state-copy3) 'g path)
+            (consequences (rule-farmer-takes-goat state-copy3) 'g path "farmer takes goat")
               )
          )
             t
@@ -101,7 +102,7 @@
         
             (equalp (nth 0 state) (nth 3 state)) 
             (not (equalp last-taken 'c))
-            (consequences (rule-farmer-takes-cabbage state-copy4) 'c path)
+            (consequences (rule-farmer-takes-cabbage state-copy4) 'c path "farmer takes cabbage")
               )
          )
             t
@@ -146,7 +147,7 @@
 )
 
 
-(defun consequences (state last-taken path)
+(defun consequences (state last-taken path action)
     (cond
         ((equalp (nth 0 state) 'l)          ;Farmer on left bank
             
@@ -184,7 +185,7 @@
             )
         )    
     )
-    (dfs state last-taken path)
+    (dfs state last-taken path action)
 )
 
 
