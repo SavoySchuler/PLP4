@@ -67,7 +67,7 @@ Date:       11-25-16
     ;Check conditions of state to determine appropriate path for dfs.
     (cond 
         ;If goal state reached, proceed to output function to print path.       
-        ((equal state '(r r r r)) (setf path (cons (nconc state (list action))
+        ((equal state '(r r r r)) (setf path (cons (nconc (copy-list state) (list action))
              path)) (output (reverse path))
         )
         
@@ -101,7 +101,7 @@ Date:       11-25-16
         )
 
     ;Update the solution path with the current state and last action performed. 
-    (setf path (cons (nconc state (list action)) path))
+    (setf path (cons (nconc (copy-list state) (list action)) path))
 
     ;Test each move for validity and success.
     (cond 
