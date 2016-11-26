@@ -1,6 +1,8 @@
 #|
         ***** fwgc.lsp *****
 
+The Farmer, Wolf, Goat, Cabbage Problem:
+  
 A farmer with his wolf, goat, and cabbage arrive at the bank of a river. A boat 
 at the river’s edge is only large enough for the farmer and one of his 
 possessions. The farmer cannot leave the wolf alone with the goat, or the goat 
@@ -14,9 +16,10 @@ This program uses the function (fwgc) as a simulated main and has an out-of-
 function (fwgc) call placed at the bottom of the file to allow the program to be
 run without entering an interpreter and manually loading the file.
 
-Author: Savoy Schuler
-Class:  CSC461 Programming Languages Fall 2016
-Date:   11-25-16
+Author:     Savoy Schuler
+Class:      CSC461 Programming Languages Fall 2016, SDSMT
+Instructor: John M. Weiss, Ph.D.
+Date:       11-25-16
 
 |#
 
@@ -24,10 +27,10 @@ Date:   11-25-16
 (defun fwgc ()
     "(fwgc): returns t if program completes successfully, else nil
 
-        This is the simulated program main. It sets up local variables for the
-        initial state of the problem and passes the into a deprth-first search.
-        If the search is successful, the dfs first move to an output function to 
-        print the solution path, but will then return t up the recursive calls.
+        fwgc is the simulated program main. It sets up local variables for the
+        initial state of the problem and passes them into a depth-first search.
+        If the search is successful, the dfs moves to an output function to 
+        print the solution path, then will return t up the recursive calls.
         If no solution is found, nil will be returned and the function will 
         output a message to the user before evaluating nil."
 
@@ -45,7 +48,7 @@ Date:   11-25-16
             ;If successful, 'output' will print solution path to terminal.
             ((dfs start last-taken path action) t)
 
-            ;If unsuccessful, inform user with output.
+            ;If unsuccessful, inform user with output, return nil.
             (t (format t "~%~%No solution found.~%~%") nil)	
         )	
     )
@@ -53,7 +56,7 @@ Date:   11-25-16
 
 
 (defun dfs (state last-taken path action)
-    "(dfs state last-taken path action): 
+    "(dfs state last-taken path action): t if goal reached, else nil
     
         The depth-first search function will first check if the goal '(f w g c) 
         has been reached, if so it will proceed to the output function. Else it 
@@ -71,22 +74,22 @@ Date:   11-25-16
         ;If no element has been set to nil, continue depth-first search.
         ((not (member nil state)) (apply-rules state last-taken path action) )
 
-        ;If an element has be set to nil, return nil.        
+        ;If an element has be set to nil or other, return nil.        
         (t nil)
     )        
 )
 
 
 (defun apply-rules (state last-taken path action)
-    "(apply-rules state last-taken path action): returns success of rules
+    "(apply-rules state last-taken path action): t/nil product of valid-move
 
         Called from dfs to continue search by branching valid moves from the 
         current state. The 'last-taken' variable is maintained to prevent the 
         dfs from recursively doing the inverse of the move it made previously, 
         which would otherwise result in infinite recursion. 'path' is maintained 
         to keep track of the solution path. At each pass of this function the 
-        action of the previous pass is appended to the path, it is done here for
-        convenience and localizing path manipulation calls."
+        action of the previous pass is appended to the path - it is done here 
+        for convenience and localizing path manipulation calls."
 
     ;Must save the current state for backing up from dead ends. 
     ;Achieve this by passing each branch a copy of the current state.  
@@ -97,7 +100,7 @@ Date:   11-25-16
         ( state-copy4 (copy-list state))
         )
 
-    ;Update the solution path with the current state and last action. 
+    ;Update the solution path with the current state and last action performed. 
     (setf path (cons (nconc state (list action)) path))
 
     ;Test each move for validity and success.
@@ -130,15 +133,14 @@ Date:   11-25-16
 (defun valid-move (state farmer object object-name last-taken path action)
     "(valid-move state farmer object object-name last-taken path action): t/nil
     
-        This function will test the validity of a move by with three criteria. 
+        This function will test the validity of a move with three conditions. 
         First, it will check if the farmer and the object are on the same side, 
-        and thus if the farmer is able to move the object. It will then check 
+        i.e., if the farmer is able to move the object. It will then check 
         that the object was not the last one moved to prevent infinite recursion
         that could occur by repeatedly performing the inverse of the previous 
         move. Last it will call the dfs on the the state to see if a solution
-        path is produced. The dfs is used here is a conditional to return t when
-        the dfs returns t. This prevents a dead-end path from returning nil all
-        the way up to the main function."
+        path is produced. The dfs is used here as a conditional to prevent a 
+        dead-end path from returning nil all the way up to the main function."
 
     (cond 
         ((and             
@@ -147,15 +149,14 @@ Date:   11-25-16
                 ;Check that the farmer and the object are on the same side.                  
                 (equalp (nth farmer state) (nth object state)) 
                 
-                ;Check that the current object was not also the last one take.
-                ;Prevents infinite recursion caused by calling inverse of prev.
+                ;Check that the current object was not the last one taken.
                 (not (equalp last-taken object-name))
             )
 
         ;Make move and pass state to consequences.
         (consequences (make-move state farmer object) object-name path action)
         )
-                ;Return true if all three conditions pass => solution found.
+                ;Return true if all three conditions pass, means solution found.
                 t
         )
     )
@@ -166,7 +167,7 @@ Date:   11-25-16
     "(make-move state farmer object):   returns new state with farmer and object
                                         moved
 
-        This function is used to *make a move* by changing the position of the 
+        This function is used to make a move by changing the position of the 
         farmer and the passed in object from one bank to the other. If the 
         farmer is traveling alone, the farmer's location '0 will be passed in 
         for both the farmer and the object."
@@ -185,16 +186,15 @@ Date:   11-25-16
 
 
 (defun consequences (state last-taken path action)
-   "(consequences state last-taken path action): returns will call to dfs
+   "(consequences state last-taken path action): returns call to dfs
 
         This function evaluates the consequences of applying a rule to a state. 
         If the wolf and the goat are left alone, the wolf will eat the goat 
         and thus the goat's location in the state will be replaced by nil. If 
         the goat and the cabbage are left alone, the goat will eat the 
-        cabbage and thus the cabbage's location in the state will be replaced by
+        cabbage and the cabbage's location in the state will be replaced by
         nil. These affects occur only when the farmer is on the opposite side. 
-        The function will pass the potentially altered state to dfs for 
-        evaluation."
+        The function will then pass the state to dfs for evaluation."
  
     ;Check which bank farmer is on. 
     (cond
@@ -276,8 +276,9 @@ Date:   11-25-16
             ((equalp (nth 3 state) 'r) (setf right (cons 'c right)))
         ) 
 
-            ;Print left bank, right bank, and action of state to terminal.
-            (format t "~%~9a~c~9a~c~a" (if (null left) "-" (reverse left)) #\Tab (if (null right) "-" (reverse right)) #\Tab (nth 4 state))
+            ;Print to terminal left bank, right bank, and action.
+            (format t "~%~9a~c~9a~c~a" (if (null left) "-" (reverse left)) #\Tab
+                (if (null right) "-" (reverse right)) #\Tab (nth 4 state))
         )
     ) 
 
@@ -286,6 +287,5 @@ Date:   11-25-16
     t   
 )
 
-
 ;Call to simulated main. Allows program to be run without entering interpreter.
-(fwgc)
+;(fwgc)
