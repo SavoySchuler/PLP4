@@ -21,6 +21,11 @@ Class:      CSC461 Programming Languages Fall 2016, SDSMT
 Instructor: John M. Weiss, Ph.D.
 Date:       11-25-16
 
+Usage: clisp fwgc.lsp
+
+Or:    clisp
+       (load 'fwgc.lsp)
+       (fwgc)
 |#
 
 
